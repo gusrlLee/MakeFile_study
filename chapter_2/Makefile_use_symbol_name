@@ -1,0 +1,11 @@
+SRCS = add.c calc.c mult.c sub.c
+OBJS = $(SRC:.c=.o)
+PROG = calculator
+CC = gcc
+CFLAGS = -g
+
+$(PROG):$(OBJS)
+          $(CC) $(CFLAGS) -o $@ $^
+
+$(OBJS): numbers.h
+

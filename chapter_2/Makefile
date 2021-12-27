@@ -1,0 +1,14 @@
+calculator: add.o calc.o mult.o sub.o
+    gcc -g  -o  calculator  add.o   calc.o  mult.o  sub.o
+
+add.o: add.c numbers.h
+    gcc -g  -c  add.c
+
+calc.o: calc.c numbers.h
+    gcc -g  -c  calc.c
+
+mult.o: mult.c numbers.h
+    gcc -g  -c  mult.c
+
+sub.o: sub.c numbers.h
+    gcc -g  -c  sub.c
