@@ -1,0 +1,9 @@
+ifeq ($(TARGET), Linux)
+    CC := gcc-4.2
+    CFLAGS := -g -o
+endif
+ifeq($(TARGET), Windows)
+    CC := cl.exe
+    CFLAGS := /02 /Zi
+endif
+
