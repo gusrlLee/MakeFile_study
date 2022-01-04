@@ -126,8 +126,104 @@ foreach(source_file add.c sub.c mult.c calc.c)
         COMMAND cksum ${PROJECT_SOURCE_DIR}/${souce_file}
     )
 endforeach(source_file)
+#===========================================================
+project(finding)
+cmake_minimum_required(VERSION 3.0)
+
+find_program(LS_PATH ls)
+message("The path to the ls program is ${LS_PATH}")
+
+find_file(STDIO_H_PATH stdio.h)
+message("The path to the stdio.h file is ${STDIO_H_PATH}")
+
+find_library(LIB_MATH_PATH m /usr/local/lib/usr/lib64)
+message("The path to the math Library is {LIB_MATH_PATH}")
+#===========================================================
+project(find-perl)
+cmake_minimum_required(VERSION 2.6)
+
+include(FindPerl)
+if(PERL_FOUND)
+    execute_process(
+        COMMAND ${PERL_EXECUTABLE} ${PROJECT_SOURCE_DIR} / 
+        config.pl
+    )
+else()
+    message(SEND_ERROR "There is no perl interpreter on this system")
+endif()
+#===========================================================
+
+project(try-complie)
+cmake_minimum_required(VERSION 2.6)
+
+include(CheckFuctionExists)
+include(CheckStructHasMember)
+
+CHECK_FUNCTION_EXISTS(vsnprintf VSNPRINTF_EXISTS)
+if(NOT VSNPRINTF_EXISTS)
+    message(SEND_ERROR "vsnprintf not available on this build machine")
+endif()
+
+CHECK_STRUCT_HAS_MEMBER("struct rusage" ru_stime wait.h HAS_STIME)
+if(NOT HAS_STIME)
+    message(SEND_ERROR "ru_stime field not available in struct rusage")
+endif()
 
 
+#===========================================================
+# source code in a single directory
+project(scenario-1)
+add_executable(calculator add sub mult calc)
+
+#===========================================================
+# source code in multiple directories
+project(scenario-2)
+cmake_minimum_required(VERSION 3.0)
+add_subdirectory(libmath)
+add_subdirectory(libprint)
+add_subdirectory(calc)
+
+# add library
+add_library(Math clock letter number)
+add_library(Print banner.c center.c normal.c)
+
+add_executable(calculator calc.c)
+# link libraries
+target_link_libraries(calculator Math Print)
+
+# ==========================================================
+# Define a new compilation tool
+project(scenario-3)
+cmake_minimum_required(VERSION 2.6)
+
+macro(mathcomp FUNC_NAME INPUT_FILE OUTPUT_FILE)
+    execute_process(
+        COMMAND /tools/bin/mathcomp -d ${INPUT_FILE}
+        OUTPUT_VARIABLE DEFS
+    )
+    separate_arguments(DEFS)
+
+    add_custom_command(
+        OUTPUT ${OUTPUT_FILE}
+        COMMAND /tools/bin/mathcomp -c -o ${OUTPUT_FILE} -f ${FUNC_NAME} ${INPUT_FILE}
+    )
+endmacro(mathcomp)
+
+mathcomp(equations ${PROJECT_SOURCE_DIR}/equations.math equations.c)
+
+add_executable(calculator calculator.c equations.c)
+# ==========================================================
+# Build with multiple variants
+project(scenario-4)
+
+set(PLATFORM i386 CACHE STRING "CPU Type : i386, powerrpc or alpha")
+
+if(NOT ${PLATFORM} MATCHES "^(i386|powerpc|alpha)$*")
+    message(SEND_ERROR "INVALID PLATFORM")
+endif()
+message("Compile code ${PLATFORM}")
+set(CMAKE_C_COMPILER /tools/bin/gcc-${PLATFORM})
+add_executable(calculator add mul sub calc)
 
 
 
